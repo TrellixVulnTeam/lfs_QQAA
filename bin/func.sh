@@ -9,11 +9,11 @@ lspath() {
   echo "$PATH" | tr ':' '\n'
 };
 report() {
-	echo $(serdate):$( printf '%q ' "$@" running ) >&2;
-	"$@";
-	x=$?;
-	echo $(serdate):$( printf '%q ' "$@" returned $x ) >&2;
-	return $x
+  echo $(serdate):$( printf '%q ' "$@" running ) >&2;
+  "$@";
+  x=$?;
+  echo $(serdate):$( printf '%q ' "$@" returned $x ) >&2;
+  return $x
 }
 uzcat() {
   if ((!$#)); then
@@ -53,6 +53,9 @@ else
     false
   }
 fi
+brief_msg() {
+ echo "$(serdate):$*" | tee -a $LFS_SRC/log/brief.log >&2
+}
 run_func() {
   local step=$1
   local skip_file="$LFS_BLD/$dir/.$step.done"
@@ -65,10 +68,10 @@ run_func() {
   set -- ${pkg}${pass}_$step ${pkg}_$step generic_$step
   local func
   if [ ! -z "${msg}" ]; then
-    echo "$(serdate):$msg" | tee -a log/brief.log >&2
+    brief_msg "$msg"
     msg=""
   fi
-  echo "$(serdate):  pkg=$pkg step=$step" | tee -a $LFS_SRC/log/brief.log
+  brief_msg "$(serdate):  pkg=$pkg step=$step"
   for func; do 
     if is_function $func; then
       report $func && serdate> "$skip_file" && return 0
@@ -82,7 +85,6 @@ add_pkg() {
   pkg_list="$pkg_list $*"
 };
 build_pkg() {
-  touch log/brief.log
   msg="building pkg $pkg ${pass+pass ${pass#_} }in $dir (LFS=$LFS)"
   if test ! -d "$dir"; then
     if is_function "${pkg}${pass}_unpack"; then
@@ -183,6 +185,6 @@ run_build() {
 	export -f $fini_functions
 	export pkg_list
 	mkdir -p log
-	bash -c 'time build_all' 2>&1 |tee log/build.out.$(serdate)
+	bash -c 'time build_all' 2>&1 |tee log/build.out.${PART}-$(serdate)
 	echo "$(serdate):done" | tee -a log/brief.out
 }

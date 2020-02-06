@@ -7,6 +7,6 @@ exec chroot "$LFS" /tools/bin/env -i \
     HOME=/root                  \
     TERM="$TERM"                \
     PS1='(lfs chroot) \u:\w\$ ' \
-    PATH=/tools/bin:/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
+    PATH=/usr/sbin:/usr/bin:/sbin:/bin:/tools/bin \
 		/tools/bin/bash --login
 

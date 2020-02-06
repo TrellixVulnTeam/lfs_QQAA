@@ -313,10 +313,10 @@ bzip2_install() {
 bzip2_postinstall() {
   cp -v bzip2-shared /bin/bzip2
   cp -av libbz2.so* /lib
-  ln -sv ../../lib/libbz2.so.1.0 /usr/lib/libbz2.so
+  ln -sfv ../../lib/libbz2.so.1.0 /usr/lib/libbz2.so
   rm -v /usr/bin/{bunzip2,bzcat,bzip2}
-  ln -sv bzip2 /bin/bunzip2
-  ln -sv bzip2 /bin/bzcat
+  ln -sfv bzip2 /bin/bunzip2
+  ln -sfv bzip2 /bin/bzcat
 };
 add_pkg bzip2
 # 6.23. Pkg-config-0.29.2
@@ -458,6 +458,9 @@ bash_config() {
 };
 bash_postinstall() {
   mv -vf /usr/bin/bash /bin
+  ln -sf bash /bin/sh
+  cp -vf $LFS_SRC/etc/profile /etc
+  report install --directory --mode=0755 --owner=root --group=root /etc/profile.d
 };
 add_pkg bash
 # 6.35. Libtool-2.4.6
@@ -968,11 +971,4 @@ tcl_postinstall() {
   make install-private-headers
   ln -sfv tclsh8.6 /tools/bin/tclsh
 };
-add_pkg tcl
-# XXX strace
-add_pkg strace
-# XXX sudo
-add_pkg sudo
 run_build;
-# as root
-# chown -R root:root $LFS/tools
