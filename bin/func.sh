@@ -77,7 +77,9 @@ add_pkg() {
   pkg_list="$pkg_list $*"
 };
 build_pkg() {
-  echo >&2 "building pkg $pkg ${pass+pass ${pass#_} }in $dir"
+  touch log/brief.log
+  msg="building pkg $pkg ${pass+pass ${pass#_} }in $dir (LFS=$LFS)"
+  echo "$(serdate):$msg" | tee -a log/brief.log >&2
   if test ! -d "$dir"; then
     if is_function "${pkg}${pass}_unpack"; then
       "${pkg}${pass}_unpack"
@@ -173,9 +175,9 @@ build_all() {
   post_build_all
   echo $(serdate): build complete
 };
-fini_functions="$(compgen -A function|sort)"
-export -f $fini_functions
 run_build() {
+	fini_functions="$(compgen -A function|sort)"
+	export -f $fini_functions
 	export pkg_list
 	rm -f build.out
 	mkdir -p log
