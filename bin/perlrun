@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "$@"
+/usr/bin/perl 2>&1 "$@" | perl bin/vi_perl
+#    set -xv
+#    
+#    /usr/bin/perl 2>&1 "$@" | perl bin/vi_perl
+

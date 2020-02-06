@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use autodie qw(:all);
+$|++;
+use FindBin qw($RealBin);
+use lib "$RealBin/../lib";
+use Data::Dumper;
+
+BEGIN {
+  local $\="\n";
+  unshift( @INC, "./lib/");
+};
+use Lfs::PkgList;
+package main;
+
+my @scr = glob("scr/*.sh");
+for(@scr) {
+  print;
+};

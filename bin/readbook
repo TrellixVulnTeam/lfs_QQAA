@@ -1,0 +1,148 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use autodie qw(:all);
+use Data::Dumper;
+use FindBin qw($RealBin);
+use lib "$RealBin/../lib";
+use Lfs::PkgList;
+use File::Path qw(mkpath rmtree);
+
+$|++;
+
+use Lfs::PkgList;
+my $list = Lfs::PkgList->new;
+
+close(STDIN);
+open(STDIN,"</dev/null");
+@ARGV=qw(doc/book.txt);
+my @lines = <>;
+chomp(@lines);
+
+my(@sects);
+
+while(@lines) {
+	last if $lines[0] =~ m{^5.4};
+	shift @lines;
+};
+my $head;
+while($lines[0] !~ m{^[6]}){
+  my @sect;
+  for($head=shift @lines) {
+    my ($c,$s,$p,$r) = m{^(\d+)[.](\d+)[.]\s*(\S+)-(\S+)\s*(.*)$};
+    if(defined($r)) {
+      $s=sprintf("%02d.%02d",$c,$s);
+      push(@sect, $head);
+      push(@sects,\@sect);
+    };
+  };
+  while( $lines[0] !~ m{^[56]} ) {
+    push(@sect,shift @lines);
+  };
+};
+while(@lines) {
+  last if $lines[0] =~ m{^6.4};
+  shift @lines;
+};
+while($lines[0] !~ m{^[7]}){
+  my @sect;
+  for($head=shift @lines) {
+    my ($c,$s,$p,$r) = m{^(\d+)[.](\d+)[.]\s*(\S+)-(\S+)\s*(.*)$};
+    if(defined($r)) {
+      $s=sprintf("%02d.%02d",$c,$s);
+      push(@sect,$head);
+      push(@sects,\@sect);
+    };
+  };
+  while( $lines[0] !~ m{^[67]} ) {
+    push(@sect,shift @lines);
+  };
+};
+print Dumper($list);
+for(@sects) {
+  my $sect= $_;
+ 
+  my $i=0;
+  my $head=shift @{$sect};
+  
+  while($i<@$sect) {
+    if($sect->[$i] =~ /^\s(\S)/) {
+      while(length($sect->[$i])) {
+        $sect->[$i]=~s/^\s//;
+        $i++;
+      };
+      ++$i;
+    } else {
+      splice(@$sect,$i,1);
+    };
+  }; 
+  my ($s, $p, $v);
+  for($head) {
+    ($s, $p, $v) = m{^(\d+[.]\d+)[.]\s+(\S*)-(\S*)};
+    my ($s1,$s2) = ( map { m{(\d+)[.](\d+)} } $s );
+    $s2="0$s2" if length($s2)==1;
+    $s=join(".",$s1,$s2);
+    $p=lc($p);
+  }
+  $_={ s=>$s, p=>$p, t=>$sect };
+};
+
+$\="\n";
+my $src = "tools/src/";
+my $scr = "tools/scr/";
+mkpath $_ for ( $src, $scr );
+
+open(STDOUT,">${scr}build.sh");
+print "LFS=/usr/src/lfs";
+print "src_dir=\$LFS/$src";
+print "scr_dir=\$LFS/$scr";
+print "arc_dir=\$LFS/arc";
+print "mkdir -p /tools/include";
+print "set -exv";
+print "\n\n";
+print STDERR "${scr}build.sh:1:output\n";
+my @all;
+my $cnt=0;
+for(@sects) {
+  my ($c,$s) = map { split /\./ } $_->{s};
+  next unless $c eq "5";
+  my $p = $_->{p};
+  my @s = @{$_->{t}};
+  my $obj = $list->get($p);
+  if(!defined($obj)){
+    print STDERR "missing: $p\n";
+    next;
+  };
+  print for map { join("=",$_,$obj->{$_}) } (qw( pkg ver sep loc arc ));
+  print 'cd $LFS';
+  print 'ver=${ver%-src}';
+  print 'tmp=${src_dir}/$pkg$sep$ver';
+  print 'src=${src_dir}/$pkg';
+  print 'if [ ! -e $src/.done ]; then';
+  print '  rm -fr $src';
+  print '  tar -xf $arc_dir/$arc -C $src_dir';
+  print '  mv $tmp $src';
+  print '  cd $src';
+  print '  ';
+  print '  # from book';
+  for(@{$_->{t}})
+  {
+    my $b="$_";
+    s{(.*make\s+test.*)}{# $1} && print STDERR "$_\n";;
+    s{^\s*tar\s+-?xf\s+[.][.][/]}{tar xf \${arc_dir}/};
+    s{^(\s*make\s+check\s*)$}{# \1};
+    s{^\s*make\s*$}{make -j 8};
+    if( $_ ne $b ) {
+      print STDERR "before: $b";
+      print STDERR "after: $_";
+    };
+    print "  $_";
+  };
+  print '  touch $src/.done';
+  print '  ';
+  print 'fi';
+  print "\n";
+};
+close(STDOUT);
+open(STDOUT,">&STDERR");
+#system("bash ${scr}build.sh");

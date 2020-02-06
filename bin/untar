@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use autodie qw(:all);
+$|++;
+use FindBin qw($RealBin);
+use lib "$RealBin/../lib";
+BEGIN {
+  local $\="\n";
+  unshift( @INC, "./lib/");
+};
+package main;
+use Lfs::PkgList;
+my $list;
+$list = Lfs::PkgList->new( );
+$\="\n";
+
+our($pkg,%pkg);
+for my $pkg ( @{$list->pkg_list} ) {
+  local(%pkg);
+  *pkg=$pkg;
+  print $pkg{arc};
+  $pkg->untar("src/$pkg{pkg}");
+};
