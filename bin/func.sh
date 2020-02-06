@@ -173,9 +173,9 @@ build_all() {
   post_build_all
   echo $(serdate): build complete
 };
-fini_functions="$(compgen -A function|sort)"
-export -f $fini_functions
 run_build() {
+	fini_functions="$(compgen -A function|sort)"
+	export -f $fini_functions
 	export pkg_list
 	rm -f build.out
 	mkdir -p log
