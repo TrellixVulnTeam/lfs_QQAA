@@ -1,4 +1,6 @@
 #!/bin/bash
+unset -f $(compgen -A function)
+set -e
 serdate() {
   TZ=UTC date +%Y-%m-%d-%H-%M-%S
 };
@@ -28,6 +30,7 @@ uzcat() {
   done
 };
 to_src() {
+  test -z "$LFS_BLD" && exit 1
   mkdir -pv $LFS_BLD/
   cd $LFS_BLD/
 };
@@ -140,6 +143,7 @@ generic_builddir() {
 build_all() {
   echo $(serdate): starting build
   set -e
+  set -xv
   if test ! -d "$LFS" ; then
     echo >&2 "LFS=($LFS)" which does not point to a dir.
     return 1;
@@ -169,3 +173,11 @@ build_all() {
   post_build_all
   echo $(serdate): build complete
 };
+fini_functions="$(compgen -A function|sort)"
+export -f $fini_functions
+run_build() {
+	export pkg_list
+	rm -f build.out
+	mkdir -p log
+	bash -c 'time build_all' 2>&1 | tee log/build.out.$(serdate)
+}

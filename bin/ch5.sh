@@ -4,8 +4,6 @@ if ((!$UID)); then
   echo >&2 "Don't run me as root!"
   exit 1
 fi
-unset -f $(compgen -A function)
-set -e
 mkdir -p /lfs/tools
 source bin/env.ch5.sh
 source bin/func.sh
@@ -376,11 +374,6 @@ vim_postinstall() {
   done
 }
 add_pkg vim
-fini_functions="$(compgen -A function|sort)"
-export -f $fini_functions
-export pkg_list
-rm -f build.out
-mkdir -p log
-bash -c 'time build_all' 2>&1 | tee log/build.out
+run_build;
 # as root
 # chown -R root:root $LFS/tools

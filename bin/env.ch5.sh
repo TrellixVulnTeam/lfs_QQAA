@@ -1,3 +1,4 @@
+PART=ch5
 LFS=/lfs
 LFS_TGT=$(uname -m)-lfs-linux-gnu
 LFS_SRC=/lfs/usr/src/lfs
