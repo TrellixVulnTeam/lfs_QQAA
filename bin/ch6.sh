@@ -970,7 +970,9 @@ tcl_postinstall() {
   ln -sfv tclsh8.6 /tools/bin/tclsh
 };
 add_pkg tcl
-
+# XXX strace
+add_pkg strace
+add_pkg sudo
 fini_functions="$(compgen -A function|sort)"
 export -f $fini_functions
 export pkg_list
