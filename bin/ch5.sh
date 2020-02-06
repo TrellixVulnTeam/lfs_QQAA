@@ -6,6 +6,7 @@ if ((!$UID)); then
 fi
 unset -f $(compgen -A function)
 set -e
+mkdir -p /lfs/tools
 source bin/env.ch5.sh
 source bin/func.sh
 generic_config() {
