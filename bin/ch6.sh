@@ -970,11 +970,14 @@ tcl_postinstall() {
   ln -sfv tclsh8.6 /tools/bin/tclsh
 };
 add_pkg tcl
-
+# XXX strace
+add_pkg strace
+# XXX sudo
+add_pkg sudo
 fini_functions="$(compgen -A function|sort)"
 export -f $fini_functions
 export pkg_list
 rm -f build.out
-bash -xv -c 'time build_all' 2>&1 | tee build.out
+bash -c 'time build_all' 2>&1 | tee build.out
 # as root
 # chown -R root:root $LFS/tools
