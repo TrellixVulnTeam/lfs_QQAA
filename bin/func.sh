@@ -64,6 +64,11 @@ run_func() {
   (($#)) && rm -vf $(printf '.%s.done\n' "$@" )
   set -- ${pkg}${pass}_$step ${pkg}_$step generic_$step
   local func
+  if [ ! -z "${msg}" ]; then
+    echo "$(serdate):$msg" | tee -a log/brief.log >&2
+    msg=""
+  fi
+  echo "$(serdate):  pkg=$pkg step=$step" | tee -a $LFS_SRC/log/brief.log
   for func; do 
     if is_function $func; then
       report $func && serdate> "$skip_file" && return 0
@@ -79,7 +84,6 @@ add_pkg() {
 build_pkg() {
   touch log/brief.log
   msg="building pkg $pkg ${pass+pass ${pass#_} }in $dir (LFS=$LFS)"
-  echo "$(serdate):$msg" | tee -a log/brief.log >&2
   if test ! -d "$dir"; then
     if is_function "${pkg}${pass}_unpack"; then
       "${pkg}${pass}_unpack"
@@ -145,7 +149,6 @@ generic_builddir() {
 build_all() {
   echo $(serdate): starting build
   set -e
-  set -xv
   if test ! -d "$LFS" ; then
     echo >&2 "LFS=($LFS)" which does not point to a dir.
     return 1;
@@ -179,7 +182,7 @@ run_build() {
 	fini_functions="$(compgen -A function|sort)"
 	export -f $fini_functions
 	export pkg_list
-	rm -f build.out
 	mkdir -p log
-	bash -c 'time build_all' 2>&1 | tee log/build.out.$(serdate)
+	bash -c 'time build_all' 2>&1 |tee log/build.out.$(serdate)
+	echo "$(serdate):done" | tee -a log/brief.out
 }
