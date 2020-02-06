@@ -77,7 +77,9 @@ add_pkg() {
   pkg_list="$pkg_list $*"
 };
 build_pkg() {
-  echo >&2 "building pkg $pkg ${pass+pass ${pass#_} }in $dir"
+  touch log/brief.log
+  msg="building pkg $pkg ${pass+pass ${pass#_} }in $dir (LFS=$LFS)"
+  echo "$(serdate):$msg" | tee -a log/brief.log >&2
   if test ! -d "$dir"; then
     if is_function "${pkg}${pass}_unpack"; then
       "${pkg}${pass}_unpack"
