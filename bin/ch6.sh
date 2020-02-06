@@ -4,7 +4,9 @@ if (($UID)); then
   echo >&2 "Run me as root!"
   exit 1
 fi
-unset -f $(compgen -A function)
+set -e
+source bin/func.sh
+source bin/env.ch6.sh
 post_build_all() {
  rm -f /usr/lib/lib{bfd,opcodes}.a
  rm -f /usr/lib/libbz2.a
@@ -15,9 +17,6 @@ post_build_all() {
  find /usr/lib /usr/libexec -name \*.la -delete
  echo "done!"
 }
-set -e
-source bin/func.sh
-source bin/env.ch6.sh
 generic_config() {
   ./configure --prefix=/usr/
 };
@@ -974,10 +973,6 @@ add_pkg tcl
 add_pkg strace
 # XXX sudo
 add_pkg sudo
-fini_functions="$(compgen -A function|sort)"
-export -f $fini_functions
-export pkg_list
-rm -f build.out
-bash -c 'time build_all' 2>&1 | tee build.out
+run_build;
 # as root
 # chown -R root:root $LFS/tools

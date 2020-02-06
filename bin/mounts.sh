@@ -1,6 +1,13 @@
 LFS=/lfs
-mountpoint $LFS/dev || mount -vt devfs $LFS/dev
-mountpoint $LFS/dev/pts || mount -vt devpts devpts $LFS/dev/pts -o gid=5,mode=620
-mountpoint $LFS/proc || mount -vt proc proc $LFS/proc
-mountpoint $LFS/sys || mount -vt sysfs sysfs $LFS/sys
-mountpoint $LFS/run || mount -vt tmpfs tmpfs $LFS/run
+set -e
+for i in dev dev/pts proc sys; do
+  mkdir -p $LFS/$i
+done
+mountpoint $LFS/dev ||
+  mount --bind /dev $LFS/dev
+mountpoint $LFS/dev/pts || 
+  mount -vt devpts devpts $LFS/dev/pts -o gid=5,mode=620
+mountpoint $LFS/proc/ ||
+  mount -vt proc proc $LFS/proc
+mountpoint $LFS/sys/ ||
+  mount -vt sysfs sysfs $LFS/sys
