@@ -3,7 +3,7 @@
 LFS=/lfs
 cd "$LFS"
 mkdir -p "$LFS/root"
-exec chroot "$LFS" /tools/bin/env -i \
+exec sudo chroot "$LFS" /tools/bin/env -i \
     HOME=/root                  \
     TERM="$TERM"                \
     PS1='(lfs chroot) \u:\w\$ ' \
