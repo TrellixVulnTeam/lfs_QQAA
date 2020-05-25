@@ -9,11 +9,11 @@ lspath() {
   echo "$PATH" | tr ':' '\n'
 };
 report() {
-	echo $(serdate):$( printf '%q ' "$@" running ) >&2;
-	"$@";
-	x=$?;
-	echo $(serdate):$( printf '%q ' "$@" returned $x ) >&2;
-	return $x
+  echo $(serdate):$( printf '%q ' "$@" running ) >&2;
+  "$@";
+  x=$?;
+  echo $(serdate):$( printf '%q ' "$@" returned $x ) >&2;
+  return $x
 }
 uzcat() {
   if ((!$#)); then
@@ -53,6 +53,9 @@ else
     false
   }
 fi
+brief_msg() {
+ echo "$(serdate):$*" | tee -a $LFS_SRC/log/brief.log >&2
+}
 run_func() {
   local step=$1
   local skip_file="$LFS_BLD/$dir/.$step.done"
@@ -64,6 +67,11 @@ run_func() {
   (($#)) && rm -vf $(printf '.%s.done\n' "$@" )
   set -- ${pkg}${pass}_$step ${pkg}_$step generic_$step
   local func
+  if [ ! -z "${msg}" ]; then
+    brief_msg "$msg"
+    msg=""
+  fi
+  brief_msg "$(serdate):  pkg=$pkg step=$step"
   for func; do 
     if is_function $func; then
       report $func && serdate> "$skip_file" && return 0
@@ -77,9 +85,7 @@ add_pkg() {
   pkg_list="$pkg_list $*"
 };
 build_pkg() {
-  touch log/brief.log
   msg="building pkg $pkg ${pass+pass ${pass#_} }in $dir (LFS=$LFS)"
-  echo "$(serdate):$msg" | tee -a log/brief.log >&2
   if test ! -d "$dir"; then
     if is_function "${pkg}${pass}_unpack"; then
       "${pkg}${pass}_unpack"
@@ -145,7 +151,6 @@ generic_builddir() {
 build_all() {
   echo $(serdate): starting build
   set -e
-  set -xv
   if test ! -d "$LFS" ; then
     echo >&2 "LFS=($LFS)" which does not point to a dir.
     return 1;
@@ -179,7 +184,7 @@ run_build() {
 	fini_functions="$(compgen -A function|sort)"
 	export -f $fini_functions
 	export pkg_list
-	rm -f build.out
 	mkdir -p log
-	bash -c 'time build_all' 2>&1 | tee log/build.out.$(serdate)
+	bash -c 'time build_all' 2>&1 |tee log/build.out.${PART}-$(serdate)
+	echo "$(serdate):done" | tee -a log/brief.out
 }

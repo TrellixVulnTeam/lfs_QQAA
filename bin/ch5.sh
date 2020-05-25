@@ -375,5 +375,3 @@ vim_postinstall() {
 }
 add_pkg vim
 run_build;
-# as root
-# chown -R root:root $LFS/tools
