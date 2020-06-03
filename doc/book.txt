@@ -5075,6 +5075,8 @@ Chapter 6. Installing Basic System Software
    been started, and additionally when Linux is started with init=/bin/bash.
    Create the devices by running the following commands:
 
+ mknod -m 600 $LFS/dev/console c 5 1
+ mknod -m 666 $LFS/dev/null c 1 3
 
   6.2.2. Mounting and Populating /dev
 
@@ -5089,16 +5091,16 @@ Chapter 6. Installing Basic System Software
    create a mirror of a directory or mount point to some other location. Use
    the following command to achieve this:
 
-mount -v --bind /dev /lfs/dev
+ mount -v --bind /dev $LFS/dev
 
   6.2.3. Mounting Virtual Kernel File Systems
 
    Now mount the remaining virtual kernel filesystems:
 
-mount -v --bind /dev/pts /lfs/dev/pts
-mount -v --bind /proc /lfs/proc
-mount -v --bind /sys /lfs/sys
-mount -v --bind /run /lfs/run
+ mount -vt devpts devpts $LFS/dev/pts -o gid=5,mode=620
+ mount -vt proc proc $LFS/proc
+ mount -vt sysfs sysfs $LFS/sys
+ mount -vt tmpfs tmpfs $LFS/run
 
    The meaning of the mount options for devpts:
 
@@ -6460,7 +6462,7 @@ mount -v --bind /run /lfs/run
  expect -c "spawn ls"
 
    This command should output the following:
-uOB
+
  spawn ls
 
    If, instead, the output includes the message below, then the environment
@@ -6482,7 +6484,7 @@ uOB
 
    Prepare Binutils for compilation:
 
- ..V/configure --prefix=/usr       \
+ ../configure --prefix=/usr       \
               --enable-gold       \
               --enable-ld=default \
               --enable-plugins    \
