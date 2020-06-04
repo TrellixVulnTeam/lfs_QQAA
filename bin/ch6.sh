@@ -948,27 +948,4 @@ eudev_postinstall() {
   udevadm hwdb --update
 };
 add_pkg eudev
-# 5.12. Expect-5.45.4
-expect_preconfig() {
-  cp -v configure{,.orig}
-  sed 's:/usr/local/bin:/bin:' configure.orig > configure
-}
-expect_config() {
-  ./configure --prefix=/tools       \
-              --with-tcl=/tools/lib \
-              --with-tclinclude=/tools/include 
-};
-expect_install() {
-  make SCRIPTS="" install
-};
-add_pkg expect
-# 5.11. Tcl-8.6.9
-tcl_builddir() {
-  dir=tcl/unix
-};
-tcl_postinstall() {
-  chmod -v u+w /tools/lib/libtcl8.6.so
-  make install-private-headers
-  ln -sfv tclsh8.6 /tools/bin/tclsh
-};
 run_build;

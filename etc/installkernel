@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# This file is subject to the terms and conditions of the GNU General Public
+# License.  See the file "COPYING" in the main directory of this archive
+# for more details.
+#
+# Copyright (C) 1995 by Linus Torvalds
+#
+# Adapted from code in arch/i386/boot/Makefile by H. Peter Anvin
+#
+# "make install" script for i386 architecture
+#
+# Arguments:
+#   $1 - kernel version
+#   $2 - kernel image file
+#   $3 - kernel map file
+#   $4 - default install path (blank if root directory)
+#
+set -e
+echo >&2 "$0 $@"
+verify () {
+	if [ ! -f "$1" ]; then
+		echo ""                                                   1>&2
+		echo " *** Missing file: $1"                              1>&2
+		echo ' *** You need to run "make" before "make install".' 1>&2
+		echo ""                                                   1>&2
+		exit 1
+ 	fi
+}
+
+if (($EUID)); then
+	exec sudo /sbin/installkernel "$@"
+	echo >&2 "exec failed"
+	exit 1
+fi
+# Make sure the files actually exist
+verify "$2"
+verify "$3"
+
+
+mkdir -p /boot/$1
+test -e /boot/$1/vmlinuz && cp /boot/$1/vmlinuz{,.old}
+test -e /boot/$1/System.map && cp /boot/$1/System.map{,.old}
+test -e /boot/$1/config && cp /boot/$1/config{,.old}
+
+cat $2 > /boot/$1/vmlinuz
+cp $3 /boot/$1/System.map
+cp .config /boot/$1/config

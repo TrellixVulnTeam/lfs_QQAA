@@ -84,6 +84,9 @@ pkg_list=
 add_pkg() {
   pkg_list="$pkg_list $*"
 };
+pre_build_all() {
+  true;
+};
 build_pkg() {
   msg="building pkg $pkg ${pass+pass ${pass#_} }in $dir (LFS=$LFS)"
   if test ! -d "$dir"; then
@@ -102,6 +105,7 @@ build_pkg() {
     cd $LFS_BLD/$dir
     run_func $step
   done
+  /sbin/ldconfig
 };
 generic_preinstall() {
   true;
@@ -150,6 +154,7 @@ generic_builddir() {
 };
 build_all() {
   echo $(serdate): starting build
+  pre_build_all;
   set -e
   if test ! -d "$LFS" ; then
     echo >&2 "LFS=($LFS)" which does not point to a dir.
