@@ -36,42 +36,6 @@ init_functions="$(compgen -A function|sort)"
 ####
 ####  Packages Below
 #### 
-libdrm_builddir() {
-  dir="$pkg/build"
-};
-libdrm_config() {
-	meson --prefix=/usr/X11 -Dudev=true ..
-};
-libdrm_build() {
-  ninja
-};
-libdrm_install() {
-  ninja install
-};
-add_pkg libdrm
-
-mesa_builddir() {
-  dir=$pkg/build
-}
-mesa_config() {
- meson --prefix=$XORG_PREFIX          \
-       -Dbuildtype=release            \
-       -Ddri-drivers=i915     \
-       -Dgallium-drivers= \
-       -Dglx=dri                      \
-       -Dosmesa=gallium               \
-       -Dvalgrind=false \
-       ..
-
-}
-mesa_build() {
-  ninja
-}
-mesa_install() {
-  ninja install;
-};
-add_pkg mesa
-if false; then
 add_pkg util-macros
 xorgproto_builddir() {
   dir="$pkg/build"
@@ -90,6 +54,18 @@ xorgproto_config() {
   true;
 };
 add_pkg xorgproto
+add_pkg libX11
+add_pkg libXext
+libXt_unpack() {
+  arc=$LFS_ARC/libXt-1.2.0.tar.bz2
+  generic_unpack;
+};
+libXt_config() {
+  ./configure $XCFG \
+    --with-appdefaultdir=/etc/X11/app-defaults
+};
+add_pkg libXt
+add_pkg libXmu
 add_pkg libXau
 add_pkg libXdmcp
 add_pkg xcb-proto
@@ -122,8 +98,6 @@ font-xfree86-type1_postinstall() {
 }
 add_pkg font-xfree86-type1
 add_pkg xtrans
-add_pkg libX11
-add_pkg libXext
 add_pkg libFS
 libICE_config() {
   ./configure $XCFG ICE_LIBS=-lpthread
@@ -132,70 +106,55 @@ add_pkg libICE
 add_pkg libSM
 add_pkg libXScrnSaver
 
-libXt_unpack() {
-
-  arc=$LFS_ARC/libXt-1.2.0.tar.bz2
-  generic_unpack;
-};
-libXt_config() {
-  ./configure $XCFG \
-    --with-appdefaultdir=/etc/X11/app-defaults
-};
-add_pkg libXt
 libXfont2_config() {
   ./configure $XCFG --disable-devel-docs;
 };
 add_pkg libXfont2
-
-add_pkg libXmu
 add_pkg libXpm
 add_pkg libXaw
 add_pkg libXfixes
-add_pkg libXcomposite
 add_pkg libXrender
-add_pkg libXcursor
-add_pkg libXdamage
-add_pkg libfontenc
-add_pkg libFS
-add_pkg libICE
-add_pkg libSM
-add_pkg libX11
-add_pkg libXScrnSaver
-add_pkg libXaw
 add_pkg libXcomposite
 add_pkg libXcursor
 add_pkg libXdamage
-add_pkg libXext
-add_pkg libXfixes
 add_pkg libXft
 add_pkg libXi
 add_pkg libXinerama
-add_pkg libXmu
-add_pkg libXpm
 add_pkg libXrandr
-add_pkg libXrender
 add_pkg libXres
-add_pkg libXt
 add_pkg libXtst
 add_pkg libXv
 add_pkg libXvMC
 add_pkg libXxf86dga
 add_pkg libXxf86vm
 add_pkg libdmx
-add_pkg libfontenc
-add_pkg libpciaccess
 add_pkg libxkbfile
 add_pkg libxshmfence
-add_pkg xtrans
+mesa_builddir() {
+  dir=$pkg/build
+}
+mesa_config() {
+ meson --prefix=/usr/X11 -Dbuildtype=release -Ddri-drivers=i915 -Dgallium-drivers= -Dglx=dri -Dvalgrind=false ..
+}
+mesa_build() {
+  ninja
+}
+mesa_install() {
+  ninja install;
+};
+add_pkg mesa
+
+
+
 xorg-server_config() {
  ./configure \
-   $XORG_CONFIG            \
+   $XCFG            \
    --enable-glamor         \
    --enable-suid-wrapper   \
    --with-xkb-output=/var/lib/xkb
 }
 add_pkg xorg-server
-fi
+
 ####
 ####  Packages Above
 #### 

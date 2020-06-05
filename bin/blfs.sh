@@ -7,6 +7,35 @@ fi
 set -e
 source bin/func.sh
 source bin/env.blfs.sh
+libxml2_config()
+{
+  ./configure \
+    --prefix=/usr    \
+    --disable-static \
+    --with-history   \
+    --with-python=/usr/bin/python3 
+}
+add_pkg libxml2
+wayland_config() {
+  ./configure --prefix=/usr --disable-static --disable-documentation; 
+};
+add_pkg wayland
+add_pkg wayland-protocols
+add_pkg libpciaccess
+libdrm_builddir() {
+  dir="$pkg/build"
+};
+libdrm_config() {
+	meson --prefix=/usr -Dudev=true ..
+};
+libdrm_build() {
+  ninja
+};
+libdrm_install() {
+  ninja install
+};
+add_pkg libdrm
+
 screen_config() {
  ./configure --prefix=/usr                     \
              --infodir=/usr/share/info         \
@@ -146,8 +175,8 @@ libpng_config() {
   ./configure --prefix=/usr --disable-static;
 };
 libpng_postinstall() {
-  mkdir -v /usr/share/doc/libpng-1.6.37 &&
-    cp README libpng-manual.txt /usr/share/doc/libpng-1.6.37
+  mkdir -vp /usr/share/doc/libpng-1.6.37
+  cp README libpng-manual.txt /usr/share/doc/libpng-1.6.37
 };
 add_pkg libpng
 pixman_config() {

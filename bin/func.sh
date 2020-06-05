@@ -114,7 +114,10 @@ generic_preconfig() {
   true;
 };
 archive_name() {
-  eval set -- $LFS_ARC/$pkg*.tar.*
+  eval set -- $LFS_ARC/$pkg-[0-9]*.tar.*
+  if [ ! -f $1 ]; then
+    eval set -- $LFS_ARC/$pkg*.tar.*;
+  fi  
   if (($# != 1)); then
     echo >&2 "expected to find exactly one package, got this:"
     printf >&2 "  %s\n" "$@"
@@ -170,6 +173,7 @@ build_all() {
         exit 1
         ;;
     esac
+    echo "pkg=$pkg"
     to_src
     if is_function "${pkg}${pass}_builddir"; then
       "${pkg}${pass}_builddir"
@@ -191,5 +195,5 @@ run_build() {
 	export pkg_list
 	mkdir -p log
 	bash -c 'time build_all' 2>&1 |tee log/build.out.${PART}-$(serdate)
-	echo "$(serdate):done" | tee -a log/brief.out
+	echo "$(serdate):done" | tee -a log/brief.log
 }
