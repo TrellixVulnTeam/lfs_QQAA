@@ -953,5 +953,4 @@ lfs-bootscripts_config()
   true;
 };
 add_pkg lfs-bootscripts
-#run_build;
-printf '%s\n' $pkg_list
+run_build;
