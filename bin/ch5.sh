@@ -4,7 +4,10 @@ if ((!$UID)); then
   echo >&2 "Don't run me as root!"
   exit 1
 fi
-mkdir -p /lfs/tools
+pre_build_all() {
+  unpack_only && return 0;
+  mkdir -p /lfs/tools
+};
 source bin/env.ch5.sh
 source bin/func.sh
 generic_config() {
@@ -350,6 +353,7 @@ add_pkg texinfo
 add_pkg xz
 # 5.35. Stripping
 post_build_all() {
+  unpack_only && return 0
   cd $LFS_SRC
   test -e .post_build_all.done && return 0
   find /tools/{lib,libexec} -name \*.la -delete
