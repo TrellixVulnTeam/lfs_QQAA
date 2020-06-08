@@ -948,4 +948,10 @@ eudev_postinstall() {
   udevadm hwdb --update
 };
 add_pkg eudev
-run_build;
+lfs-bootscripts_config()
+{
+  true;
+};
+add_pkg lfs-bootscripts
+#run_build;
+printf '%s\n' $pkg_list
