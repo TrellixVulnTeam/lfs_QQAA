@@ -54,7 +54,8 @@ else
   }
 fi
 brief_msg() {
- echo "$(serdate):$*" | tee -a $LFS_SRC/log/brief.log >&2
+  mkdir -p "${LFS_LOG}"
+ echo "$(serdate):$*" | tee -a $LFS_LOG/brief.log >&2
 }
 run_func() {
   local step=$1

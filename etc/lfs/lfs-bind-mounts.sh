@@ -1,4 +1,3 @@
-LFS=/lfs
 set -e
 for i in dev dev/pts proc sys; do
   mkdir -p $LFS/$i
