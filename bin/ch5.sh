@@ -4,12 +4,13 @@ if ((!$UID)); then
   echo >&2 "Don't run me as root!"
   exit 1
 fi
+set -xv
 pre_build_all() {
   unpack_only && return 0;
   mkdir -p /lfs/tools
 };
-source bin/env.ch5.sh
-source bin/func.sh
+source etc/lfs/ch5.env
+source etc/lfs/func.sh
 generic_config() {
   ./configure --prefix=/tools/
 };
