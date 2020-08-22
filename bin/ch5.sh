@@ -1,17 +1,18 @@
 #!/bin/bash
 
-if ((!$UID)); then
-  echo >&2 "Don't run me as root!"
-  exit 1
-fi
+#if ((!$UID)); then
+#  echo >&2 "Don't run me as root!"
+#  exit 1
+#fi
+export FORCE_UNSAFE_CONFIGURE=1
 pre_build_all() {
   unpack_only && return 0;
   mkdir -p /lfs/tools
 };
-source bin/env.ch5.sh
-source bin/func.sh
+source etc/lfs/ch5.env
+source etc/lfs/func.sh
 generic_config() {
-  ./configure --prefix=/tools/
+  ./configure --prefix=/tools/ ${CONFIG_CACHE_FILE_OPT}
 };
 init_functions="$(compgen -A function|sort)"
 # 5.4. Binutils-2.32 - Pass 1
@@ -24,7 +25,8 @@ binutils_1_config() {
                --with-lib-path=/tools/lib \
                --target=$LFS_TGT          \
                --disable-nls              \
-               --disable-werror 
+               --disable-werror           \
+               ${CONFIG_CACHE_FILE_OPT}
 }
 binutils_1_preinstall() {
   case $(uname -m) in
@@ -89,7 +91,8 @@ gcc_1_config() {
       --disable-libssp                               \
       --disable-libvtv                               \
       --disable-libstdcxx                            \
-      --enable-languages=c,c++ 
+      --enable-languages=c,c++                       \
+               ${CONFIG_CACHE_FILE_OPT}
 }
 add_pkg gcc_1
 # 5.6. Linux-5.2.8 API Headers
@@ -114,7 +117,8 @@ glibc_config() {
         --host=$LFS_TGT                    \
         --build=$LFS_TGT                   \
         --enable-kernel=3.2                \
-        --with-headers=/tools/include 
+        --with-headers=/tools/include      \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 glibc_test() {
   echo 'int main(){}' > dummy.c
@@ -144,7 +148,8 @@ libstdcxx_config() {
       --disable-nls                   \
       --disable-libstdcxx-threads     \
       --disable-libstdcxx-pch         \
-      --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/9.2.0 
+      --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/9.2.0  \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 add_pkg libstdcxx
 # 5.9. Binutils-2.32 - Pass 2
@@ -157,7 +162,8 @@ binutils_2_config() {
       --disable-nls              \
       --disable-werror           \
       --with-lib-path=/tools/lib \
-      --with-sysroot 
+      --with-sysroot        \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 binutils_2_postinstall() {
   make -C ld clean
@@ -189,7 +195,8 @@ gcc_2_config() {
       --disable-libstdcxx-pch                        \
       --disable-multilib                             \
       --disable-bootstrap                            \
-      --disable-libgomp 
+      --disable-libgomp \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 gcc_2_postinstall() {
   ln -sv gcc /tools/bin/cc
@@ -218,7 +225,8 @@ expect_preconfig() {
 expect_config() {
   ./configure --prefix=/tools       \
               --with-tcl=/tools/lib \
-              --with-tclinclude=/tools/include 
+              --with-tclinclude=/tools/include  \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 expect_install() {
   make SCRIPTS="" install
@@ -241,7 +249,8 @@ ncurses_config() {
               --without-debug \
               --without-ada   \
               --enable-widec  \
-              --enable-overwrite 
+              --enable-overwrite  \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 ncurses_postinstall() {
   ln -fvs libncursesw.so /tools/lib/libncurses.so
@@ -250,7 +259,8 @@ ncurses_postinstall() {
 add_pkg ncurses
 # 5.16. Bash-5.0
 bash_config() {
-  ./configure --prefix=/tools --without-bash-malloc --enable-static-link
+  ./configure --prefix=/tools --without-bash-malloc --enable-static-link \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 bash_postinstall() {
   ln -sfv bash /tools/bin/sh
@@ -268,12 +278,14 @@ bzip2_install() {
 add_pkg bzip2
 # 5.19. Coreutils-8.31
 coreutils_config() {
-  ./configure --prefix=/tools --enable-install-program=hostname 
+  ./configure --prefix=/tools --enable-install-program=hostname  \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 add_pkg coreutils
 # 5.20. Diffutils-3.7
 diffutils_config() {
-  ./configure --prefix=/tools
+  ./configure --prefix=/tools \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 add_pkg diffutils
 # 5.21. File-5.37
@@ -312,7 +324,8 @@ make_preconfig() {
   sed -i '211,217 d; 219,229 d; 232 d' glob/glob.c
 }
 make_config() {
-  ./configure --prefix=/tools --without-guile 
+  ./configure --prefix=/tools --without-guile  \
+               ${CONFIG_CACHE_FILE_OPT}
 }
 add_pkg make
 # 5.28. Patch-2.7.6
@@ -336,6 +349,12 @@ python_unpack() {
   test -f "$arc" || return 1;
   generic_unpack
 };
+# 6.29. Psmisc-23.2
+psmisc_postinstall() {
+  test /usr/bin/fuser -ef /bin/fuser || mv -v /usr/bin/fuser   /bin
+  test /usr/bin/killall -ef /bin/killall || mv -v /usr/bin/killall /bin
+}
+add_pkg psmisc
 python_preconfig() {
   sed -i '/def add_multiarch_paths/a \        return' setup.py
 }
@@ -364,7 +383,8 @@ post_build_all() {
 };
 # XXX Rsync
 rsync_config() {
-  ./configure --prefix=/tools/ --disable-ipv6 
+  ./configure --prefix=/tools/ --disable-ipv6  \
+               ${CONFIG_CACHE_FILE_OPT}
 };
 add_pkg rsync
 # XXX Vim:

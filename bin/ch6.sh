@@ -5,8 +5,8 @@ if (($UID)); then
   exit 1
 fi
 set -e
-source bin/func.sh
-source bin/env.ch6.sh
+source etc/lfs/func.sh
+source etc/lfs/ch6.env
 post_build_all() {
  rm -f /usr/lib/lib{bfd,opcodes}.a
  rm -f /usr/lib/libbz2.a

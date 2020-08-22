@@ -54,7 +54,10 @@ else
   }
 fi
 brief_msg() {
- echo "$(serdate):$*" | tee -a $LFS_SRC/log/brief.log >&2
+  echo "LFS_LOG: $LFS_LOG"
+  echo "  msg: $*"
+  mkdir -p "${LFS_LOG}"
+ echo "$(serdate):$*" | tee -a $LFS_LOG/brief.log >&2
 }
 run_func() {
   local step=$1
@@ -99,12 +102,18 @@ build_pkg() {
     fi
     mkdir -pv ${dir}
   fi
+  echo aaaaaaaaaaaaaaaa:a
   unpack_only && return 0
+  echo aaaaaaaaaaaaaaaa:b
   all_steps="preconfig config build preinstall install postinstall test"
+  echo aaaaaaaaaaaaaaaa:c
   for step in $all_steps; do
+  echo aaaaaaaaaaaaaaaa:d
     cd $LFS_BLD/$dir
+  echo aaaaaaaaaaaaaaaa:e
     run_func $step
   done
+  echo aaaaaaaaaaaaaaaa:f
   /sbin/ldconfig
 };
 generic_preinstall() {
@@ -194,6 +203,7 @@ run_build() {
 	export -f $fini_functions
 	export pkg_list
 	mkdir -p log
-	bash -c 'time build_all' 2>&1 |tee log/build.out.${PART}-$(serdate)
-	echo "$(serdate):done" | tee -a log/brief.log
+  brief_msg "starting"
+	bash -xv -c 'time build_all' 2>&1 |tee log/build.out.${PART}-$(serdate)
+  brief_msg "done"
 }
