@@ -1,10 +1,18 @@
 #!/bin/bash
 
-#export FORCE_UNSAFE_CONFIGURE=1
+<<<<<<< HEAD
+#if ((!$UID)); then
+#  echo >&2 "Don't run me as root!"
+#  exit 1
+#fi
+export FORCE_UNSAFE_CONFIGURE=1
+=======
 if ((!$UID)); then
   echo >&2 "Don't run me as root!"
   exit 1
 fi
+set -xv
+>>>>>>> 76929111c41b690d06e9047bce1abca961be9488
 pre_build_all() {
   unpack_only && return 0;
   mkdir -p /lfs/tools
