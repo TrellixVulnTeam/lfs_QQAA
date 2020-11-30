@@ -4,16 +4,17 @@ if ((!$UID)); then
   echo >&2 "Don't run me as root!"
   exit 1
 fi
+source bin/env.ch5.sh
+source bin/func.sh
+
 mkdir -vp $LFS_DST $LFS_SRC
 ln -vsf . ${LFS_DST}/share
 
-alias good=true
-good && test "${LFS}${LFS_DST}/" -ef "${LFS_DST}/" || alias good=false
-good && test "${LFS_DST}/share/" -ef "${LFS_DST}/" || alias good=false
-good || exit 1
+set -x
+test "${LFS}/" -ef "${lfs}${LFS}/" || exit 1
+test "${LFS}${LFS_DST}/" -ef "${LFS_DST}/" || exit 1
+test "${LFS_DST}/share/" -ef "${LFS_DST}/" || exit 1
 
-source bin/env.ch5.sh
-source bin/func.sh
 
 unset -f unpack_only
 unpack_only() { true; }
