@@ -44,9 +44,9 @@ not() {
 is_function() {
   [ "$(type -t $1)" == function ]
 }
-unpack_only() {
-  true;
-};
+#    unpack_only() {
+#      true;
+#    };
 brief_msg() {
  echo "$(serdate):$*" | tee -a $LFS_SRC/log/brief.log >&2
 }
@@ -80,17 +80,6 @@ add_pkg() {
 };
 build_pkg() {
   msg="building pkg $pkg ${pass+pass ${pass#_} }in $dir (LFS=$LFS)"
-  if test ! -d "$dir"; then
-    if is_function "${pkg}${pass}_unpack"; then
-      "${pkg}${pass}_unpack"
-    elif is_function "${pkg}_unpack"; then
-      "${pkg}_unpack"
-    else
-      generic_unpack;
-    fi
-    mkdir -pv ${dir}
-  fi
-  unpack_only && return 0
   all_steps="preconfig config build preinstall install postinstall test"
   for step in $all_steps; do
     cd $LFS_BLD/$dir
@@ -112,21 +101,21 @@ archive_name() {
   fi
   arc="$1"
 };
-generic_unpack() {
-  if test -z "$arc"; then
-    local arc
-    archive_name
-  fi
-  test -z "$arc" && { echo >&2 "no arc for $pkg" ; exit 1; }
-  test -e "$arc" || { echo >&2 "$arc does not exist" ; exit 1; }
-  set -- $( uzcat "$arc" | tar -xv | sed 's,/.*$,,' | sort -u )
-  if (($# != 1)); then
-    echo >&2 "expected to find exactly one dir name, got this:"
-    printf >&2 "  %s\n" "$@"
-    return 1;
-  fi
-  mv -v "$1" "$pkg"
-}
+#    generic_unpack() {
+#      if test -z "$arc"; then
+#        local arc
+#        archive_name
+#      fi
+#      test -z "$arc" && { echo >&2 "no arc for $pkg" ; exit 1; }
+#      test -e "$arc" || { echo >&2 "$arc does not exist" ; exit 1; }
+#      set -- $( uzcat "$arc" | tar -xv | sed 's,/.*$,,' | sort -u )
+#      if (($# != 1)); then
+#        echo >&2 "expected to find exactly one dir name, got this:"
+#        printf >&2 "  %s\n" "$@"
+#        return 1;
+#      fi
+#      mv -v "$1" "$pkg"
+#    }
 generic_build() {
   make -j 8 || make -j 1
 }
