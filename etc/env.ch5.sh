@@ -1,9 +1,10 @@
 set -e
 PART=ch5
 LFS=/boot
-LFS_DST=/tools
+DST=/tools
+LFS_DST=${LFS}${DST}
 LFS_TGT=$(uname -m)-lfs-linux-gnu
-LFS_SRC=${LFS}/src
+LFS_SRC=${DST}/src
 cd "${LFS_SRC}"
 LFS_ARC=${LFS_SRC}/arc/lfs
 LFS_BLD=${LFS_SRC}/src

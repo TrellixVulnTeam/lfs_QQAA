@@ -6,7 +6,7 @@ serdate() {
 };
 export LINGUAS=en
 lspath() {
-  echo "$PATH" | tr ':' '\n'
+  echo "${PATH/::*/$'\n'}"
 };
 report() {
   echo $(serdate):$( printf '%q ' "$@" running ) >&2;
@@ -133,7 +133,7 @@ generic_builddir() {
 };
 build_all() {
   echo $(serdate): starting build
-  set -e
+  set -exv
   if test ! -d "$LFS" ; then
     echo >&2 "LFS=($LFS)" which does not point to a dir.
     return 1;

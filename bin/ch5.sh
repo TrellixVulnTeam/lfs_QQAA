@@ -1,13 +1,16 @@
 #!/bin/bash
 
-if ((!$UID)); then
-  echo >&2 "Don't run me as root!"
-  exit 1
-fi
+# if ((!$UID)); then
+#   echo >&2 "Don't run me as root!"
+#   exit 1
+# fi
+set -xv
 source etc/env.ch5.sh
 source bin/func.sh
 
 mkdir -vp $LFS_DST $LFS_SRC
+cd ${DST}
+ls -ld share
 ln -vsf . ${LFS_DST}/share
 
 set -x
@@ -16,12 +19,8 @@ test "${LFS}${LFS_DST}/" -ef "${LFS_DST}/" || exit 1
 test "${LFS_DST}/share/" -ef "${LFS_DST}/" || exit 1
 
 
-unset -f unpack_only
-unpack_only() { true; }
-export -f unpack_only
-
 generic_config() {
-  ./configure --prefix=$LFS_DST
+  ./configure --prefix=$LFS_DST --enable-static-link
 };
 init_functions="$(compgen -A function|sort)"
 # 5.4. Binutils-2.32 - Pass 1
@@ -32,6 +31,7 @@ binutils_1_config() {
   ../configure --prefix=$LFS_DST          \
                --with-sysroot=$LFS        \
                --with-lib-path=$LFS_DST/lib \
+               --enable-static-link       \
                --target=$LFS_TGT          \
                --disable-nls              \
                --disable-werror 
