@@ -8,7 +8,7 @@ cd "$LFS"
 mkdir -p "root"
 set -- ${LFS}/ ${DST}/ /usr/local/ /usr / --
 while test "$1" != "--"; do
-  echo "$@" $'\n'
+  # echo "$@" $'\n'
   test -d "${1}sbin/" && set "$@" "${1}sbin"
   test -d "${1}bin/" && set "$@" "${1}bin"
   shift
