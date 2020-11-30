@@ -4,7 +4,7 @@ if ((!$UID)); then
   echo >&2 "Don't run me as root!"
   exit 1
 fi
-mkdir -p /lfs/tools
+mkdir -p $LFS_DST $LFS_SRC
 source bin/env.ch5.sh
 source bin/func.sh
 generic_config() {
@@ -352,7 +352,7 @@ add_pkg xz
 post_build_all() {
   cd $LFS_SRC
   test -e .post_build_all.done && return 0
-  find /tools/{lib,libexec} -name \*.la -delete
+  find ${LFS_DST}{lib,libexec} -name \*.la -delete
   strip --strip-debug /tools/lib/*
   /usr/bin/strip --strip-unneeded /tools/{,s}bin/*
   rm -rf /tools/{,share}/{info,man,doc}
