@@ -3,7 +3,7 @@ PART=ch5
 LFS=/boot
 LFS_DST=/static
 LFS_TGT=$(uname -m)-lfs-linux-gnu
-LFS_SRC=${LFS_DST}/src/lfs
+LFS_SRC=${LFS_DST}/src
 cd "${LFS_SRC}"
 LFS_ARC=${LFS_SRC}/arc/lfs
 LFS_BLD=${LFS_SRC}/src
