@@ -46,7 +46,6 @@ binutils_1_preinstall() {
   esac
 };
 add_pkg binutils_1
-if false; then
 # 5.5. GCC-9.2.0 - Pass 1
 gcc_builddir() {
   dir=gcc/build$pass
@@ -107,6 +106,7 @@ gcc_1_config() {
       --enable-languages=c,c++ 
 }
 add_pkg gcc_1
+if false; then
 # 5.6. Linux-5.2.8 API Headers
 linux_config() {
   make mrproper
