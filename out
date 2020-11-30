@@ -1,0 +1,18 @@
+diff --cc etc/env.ch5.sh
+index e87768ca6,0d34812bc..000000000
+--- a/etc/env.ch5.sh
++++ b/etc/env.ch5.sh
+@@@ -1,10 -1,10 +1,11 @@@
+  set -e
+  PART=ch5
+  LFS=/boot
+ -LFS_DST=/tools
+ +DST=/tools
+ +LFS_DST=${LFS}${DST}
+  LFS_TGT=$(uname -m)-lfs-linux-gnu
+ +cd "${LFS}"
++ LFS_SRC=${LFS}/src
+ -cd "${LFS_SRC}"
+  LFS_ARC=${LFS_SRC}/arc/lfs
+  LFS_BLD=${LFS_SRC}/src
+  set -- ${LFS_DST}/ / /usr --
