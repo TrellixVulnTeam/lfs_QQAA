@@ -28,3 +28,8 @@ ln -sfv /tools/lib/libgcc_s.so{,.1}                  /usr/lib
 ln -sfv /tools/lib/libstdc++.{a,so{,.6}}             /usr/lib
 
 ln -sfv bash /bin/sh
+
+touch /var/log/{btmp,lastlog,faillog,wtmp}
+chgrp -v utmp /var/log/lastlog
+chmod -v 664  /var/log/lastlog
+chmod -v 600  /var/log/btmp

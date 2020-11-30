@@ -4,7 +4,7 @@ if ((!$UID)); then
   echo >&2 "Don't run me as root!"
   exit 1
 fi
-source bin/env.ch5.sh
+source etc/env.ch5.sh
 source bin/func.sh
 
 mkdir -vp $LFS_DST $LFS_SRC
