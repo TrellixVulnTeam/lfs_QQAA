@@ -8,19 +8,24 @@ source bin/env.ch5.sh
 source bin/func.sh
 mkdir -p ${LFS_BLD}
 generic_config() {
-  ./configure --prefix=/tools/
+  ./configure --prefix=${LFS_DST}/
 };
 init_functions="$(compgen -A function|sort)"
+strace_config() {
+  ./configure --prefix=${LFS_DST} --enable-mpers=no
+}
+add_pkg strace
 # 6.32. Flex-2.6.4
 flex_preconfig() {
   sed -i "/math.h/a #include <malloc.h>" src/flexdef.h
 };
 flex_config() {
-  HELP2MAN=/tools/bin/true \
-  ./configure --prefix=/tools --docdir=/tools/share/doc/flex-2.6.4
+  HELP2MAN=${LFS_DST}/bin/true \
+  ./configure --prefix=${LFS_DST} --docdir=${LFS_DST}/share/doc/flex-2.6.4
 };
 flex_postinstall() {
-  ln -sv flex /tools/bin/lex
+  rm -f ${LFS_DST}/bin/lex
+  ln -sv flex ${LFS_DST}/bin/lex
 };
 add_pkg flex
 # 5.4. Binutils-2.32 - Pass 1
@@ -28,16 +33,16 @@ binutils_builddir() {
   dir="$pkg/build$pass"
 };
 binutils_1_config() {
-  ../configure --prefix=/tools            \
+  ../configure --prefix=${LFS_DST}            \
                --with-sysroot=$LFS        \
-               --with-lib-path=/tools/lib \
+               --with-lib-path=${LFS_DST}/lib \
                --target=$LFS_TGT          \
                --disable-nls              \
                --disable-werror 
 }
 binutils_1_preinstall() {
   case $(uname -m) in
-    x86_64) mkdir -pv $LFS/tools /tools/lib && ln -fsv lib /tools/lib64 ;;
+    x86_64) mkdir -pv $LFS${LFS_DST} ${LFS_DST}/lib && ln -fsv lib ${LFS_DST}/lib64 ;;
   esac
 };
 add_pkg binutils_1
@@ -65,11 +70,11 @@ gcc_1_preconfig() {
     rm -f $file.orig
     cp -uv $file{,.orig}
     {
-      sed -e 's@/lib\(64\)\?\(32\)\?/ld@/tools&@g' -e 's@/usr@/tools@g' $file.orig
+      sed -e 's@/lib\(64\)\?\(32\)\?/ld@${LFS_DST}&@g' -e "s@/usr@${LFS_DST}@g" $file.orig
 
       echo '#undef STANDARD_STARTFILE_PREFIX_1'
       echo '#undef STANDARD_STARTFILE_PREFIX_2'
-      echo '#define STANDARD_STARTFILE_PREFIX_1 "/tools/lib/"'
+      echo "#define STANDARD_STARTFILE_PREFIX_1 \"${LFS_DST}/lib/\""
       echo '#define STANDARD_STARTFILE_PREFIX_2 ""'
     } > $file
     touch $file.orig
@@ -81,13 +86,13 @@ gcc_1_preconfig() {
 gcc_1_config() {
   ../configure                                       \
       --target=$LFS_TGT                              \
-      --prefix=/tools                                \
+      --prefix=${LFS_DST}                                \
       --with-glibc-version=2.11                      \
       --with-sysroot=$LFS                            \
       --with-newlib                                  \
       --without-headers                              \
-      --with-local-prefix=/tools                     \
-      --with-native-system-header-dir=/tools/include \
+      --with-local-prefix=${LFS_DST}                     \
+      --with-native-system-header-dir=${LFS_DST}/include \
       --disable-nls                                  \
       --disable-shared                               \
       --disable-multilib                             \
@@ -111,7 +116,7 @@ linux_build() {
 }
 linux_install() {
   make INSTALL_HDR_PATH=dest headers_install
-  cp -rv dest/include/* /tools/include
+  cp -rv dest/include/* ${LFS_DST}/include
 }
 add_pkg linux
 # 5.7. Glibc-2.30
@@ -120,16 +125,16 @@ glibc_builddir() {
 };
 glibc_config() {
   ../configure                             \
-        --prefix=/tools                    \
+        --prefix=${LFS_DST}                    \
         --host=$LFS_TGT                    \
         --build=$LFS_TGT                   \
         --enable-kernel=3.2                \
-        --with-headers=/tools/include 
+        --with-headers=${LFS_DST}/include 
 };
 glibc_test() {
   echo 'int main(){}' > dummy.c
   $LFS_TGT-gcc dummy.c
-  readelf -l a.out | grep ': /tools'
+  readelf -l a.out | grep ': ${LFS_DST}'
   rm -v dummy.c a.out
 };
 glibc_build() {
@@ -149,12 +154,12 @@ libstdcxx_builddir() {
 libstdcxx_config() {
   ../libstdc++-v3/configure           \
       --host=$LFS_TGT                 \
-      --prefix=/tools                 \
+      --prefix=${LFS_DST}                 \
       --disable-multilib              \
       --disable-nls                   \
       --disable-libstdcxx-threads     \
       --disable-libstdcxx-pch         \
-      --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/9.2.0 
+      --with-gxx-include-dir=${LFS_DST}/$LFS_TGT/include/c++/9.2.0 
 };
 add_pkg libstdcxx
 # 5.9. Binutils-2.32 - Pass 2
@@ -163,18 +168,18 @@ binutils_2_config() {
   AR=$LFS_TGT-ar                 \
   RANLIB=$LFS_TGT-ranlib         \
   ../configure                   \
-      --prefix=/tools            \
+      --prefix=${LFS_DST}            \
       --disable-nls              \
       --disable-werror           \
-      --with-lib-path=/tools/lib \
+      --with-lib-path=${LFS_DST}/lib \
       --with-sysroot 
 };
 binutils_2_postinstall() {
   make -C ld clean
   make -C ld LIB_PATH=/usr/lib:/lib
-  mv -v /tools/bin/ld{,-old}
-  ln -sv ld-old /tools/bin/ld
-  cp -v ld/ld-new /tools/bin
+  mv -v ${LFS_DST}/bin/ld{,-old}
+  ln -sv ld-old ${LFS_DST}/bin/ld
+  cp -v ld/ld-new ${LFS_DST}/bin
 };
 add_pkg binutils_2
 # 5.10. GCC-9.2.0 - Pass 2
@@ -192,9 +197,9 @@ gcc_2_config() {
   AR=$LFS_TGT-ar                                     \
   RANLIB=$LFS_TGT-ranlib                             \
   ../configure                                       \
-      --prefix=/tools                                \
-      --with-local-prefix=/tools                     \
-      --with-native-system-header-dir=/tools/include \
+      --prefix=${LFS_DST}                                \
+      --with-local-prefix=${LFS_DST}                     \
+      --with-native-system-header-dir=${LFS_DST}/include \
       --enable-languages=c,c++                       \
       --disable-libstdcxx-pch                        \
       --disable-multilib                             \
@@ -202,12 +207,12 @@ gcc_2_config() {
       --disable-libgomp 
 };
 gcc_2_postinstall() {
-  ln -sv gcc /tools/bin/cc
+  ln -sv gcc ${LFS_DST}/bin/cc
 };
 gcc_2_test() {
   echo 'int main(){}' > dummy.c
   cc dummy.c
-  readelf -l a.out | grep ': /tools'
+  readelf -l a.out | grep ': ${LFS_DST}'
 };
 add_pkg gcc_2
 # 5.11. Tcl-8.6.9
@@ -215,9 +220,9 @@ tcl_builddir() {
   dir=tcl/unix
 };
 tcl_postinstall() {
-  chmod -v u+w /tools/lib/libtcl8.6.so
+  chmod -v u+w ${LFS_DST}/lib/libtcl8.6.so
   make install-private-headers
-  ln -sfv tclsh8.6 /tools/bin/tclsh
+  ln -sfv tclsh8.6 ${LFS_DST}/bin/tclsh
 };
 add_pkg tcl
 # 5.12. Expect-5.45.4
@@ -226,9 +231,9 @@ expect_preconfig() {
   sed 's:/usr/local/bin:/bin:' configure.orig > configure
 }
 expect_config() {
-  ./configure --prefix=/tools       \
-              --with-tcl=/tools/lib \
-              --with-tclinclude=/tools/include 
+  ./configure --prefix=${LFS_DST}       \
+              --with-tcl=${LFS_DST}/lib \
+              --with-tclinclude=${LFS_DST}/include 
 };
 expect_install() {
   make SCRIPTS="" install
@@ -246,7 +251,7 @@ ncurses_preconfig() {
   sed -i s/mawk// configure
 };
 ncurses_config() {
-  ./configure --prefix=/tools \
+  ./configure --prefix=${LFS_DST} \
               --with-shared   \
               --without-debug \
               --without-ada   \
@@ -254,16 +259,16 @@ ncurses_config() {
               --enable-overwrite 
 };
 ncurses_postinstall() {
-  ln -fvs libncursesw.so /tools/lib/libncurses.so
-  ln -fvs libncursesw.a /tools/lib/libncurses.a
+  ln -fvs libncursesw.so ${LFS_DST}/lib/libncurses.so
+  ln -fvs libncursesw.a ${LFS_DST}/lib/libncurses.a
 };
 add_pkg ncurses
 # 5.16. Bash-5.0
 bash_config() {
-  ./configure --prefix=/tools --without-bash-malloc --enable-static-link
+  ./configure --prefix=${LFS_DST} --without-bash-malloc --enable-static-link
 };
 bash_postinstall() {
-  ln -sfv bash /tools/bin/sh
+  ln -sfv bash ${LFS_DST}/bin/sh
 };
 add_pkg bash
 # 5.17. Bison-3.4.1
@@ -273,17 +278,17 @@ bzip2_config() {
   true;
 };
 bzip2_install() {
-  make PREFIX=/tools install
+  make PREFIX=${LFS_DST} install
 }
 add_pkg bzip2
 # 5.19. Coreutils-8.31
 coreutils_config() {
-  ./configure --prefix=/tools --enable-install-program=hostname 
+  ./configure --prefix=${LFS_DST} --enable-install-program=hostname 
 };
 add_pkg coreutils
 # 5.20. Diffutils-3.7
 diffutils_config() {
-  ./configure --prefix=/tools
+  ./configure --prefix=${LFS_DST}
 };
 add_pkg diffutils
 # 5.21. File-5.37
@@ -302,7 +307,7 @@ gettext_config() {
   ./configure --disable-shared 
 }
 gettext_install() {
-  cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} /tools/bin
+  cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} ${LFS_DST}/bin
 };
 add_pkg gettext
 # 5.25. Grep-3.3
@@ -322,19 +327,19 @@ make_preconfig() {
   sed -i '211,217 d; 219,229 d; 232 d' glob/glob.c
 }
 make_config() {
-  ./configure --prefix=/tools --without-guile 
+  ./configure --prefix=${LFS_DST} --without-guile 
 }
 add_pkg make
 # 5.28. Patch-2.7.6
 add_pkg patch
 # 5.29. Perl-5.30.0
 perl_config() {
-  sh Configure -des -Dprefix=/tools -Dlibs=-lm -Uloclibpth -Ulocincpth
+  sh Configure -des -Dprefix=${LFS_DST} -Dlibs=-lm -Uloclibpth -Ulocincpth
 }
 perl_install() {
-  cp -v perl cpan/podlators/scripts/pod2man /tools/bin
-  mkdir -pv /tools/lib/perl5/5.30.0
-  cp -Rv lib/* /tools/lib/perl5/5.30.0
+  cp -v perl cpan/podlators/scripts/pod2man ${LFS_DST}/bin
+  mkdir -pv ${LFS_DST}/lib/perl5/5.30.0
+  cp -Rv lib/* ${LFS_DST}/lib/perl5/5.30.0
 };
 add_pkg perl
 # 5.30. Python-3.7.4
@@ -350,7 +355,7 @@ python_preconfig() {
   sed -i '/def add_multiarch_paths/a \        return' setup.py
 }
 python_config() {
-  ./configure --prefix=/tools --without-ensurepip 
+  ./configure --prefix=${LFS_DST} --without-ensurepip 
 }
 add_pkg python
 # 5.31. Sed-4.7
@@ -363,7 +368,7 @@ add_pkg texinfo
 add_pkg xz
 # XXX Rsync
 rsync_config() {
-  ./configure --prefix=/tools/ --disable-ipv6 
+  ./configure --prefix=${LFS_DST}/ --disable-ipv6 
 };
 add_pkg rsync
 # XXX Vim:
@@ -371,8 +376,8 @@ vim_preconfig() {
  echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
 }
 vim_postinstall() {
-  ln -sfv vim /tools/bin/vi
-  for L in  /tools/share/man/{,*/}man1/vim.1; do
+  ln -sfv vim ${LFS_DST}/bin/vi
+  for L in  ${LFS_DST}/share/man/{,*/}man1/vim.1; do
     ln -sfv vim.1 $(dirname $L)/vi.1
   done
 }
@@ -386,7 +391,7 @@ post_build_all() {
   cd $LFS_SRC
   test -e .post_build_all.done && return 0
   find ${LFS_DST}/{lib,libexec} -name \*.la -delete
-  strip --strip-debug /tools/lib/*
+  strip --strip-debug ${LFS_DST}/lib/*
   /usr/bin/strip --strip-unneeded ${LFS_BLD}/{,s}bin/*
   rm -rf ${LFS_DST}/{,share}/{info,man,doc}
   serdate > .post_build_all.done
