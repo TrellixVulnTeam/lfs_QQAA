@@ -44,9 +44,15 @@ not() {
 is_function() {
   [ "$(type -t $1)" == function ]
 }
-unpack_only() {
-  true;
-};
+if test ! -z "$UNPACK_ONLY"; then
+  unpack_only() {
+    true;
+  };
+else
+  unpack_only() {
+    false
+  }
+fi
 brief_msg() {
  echo "$(serdate):$*" | tee -a $LFS_SRC/log/brief.log >&2
 }
