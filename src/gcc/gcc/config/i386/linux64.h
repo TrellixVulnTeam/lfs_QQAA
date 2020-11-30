@@ -37,3 +37,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #define MUSL_DYNAMIC_LINKER64 "/lib/ld-musl-x86_64.so.1"
 #undef MUSL_DYNAMIC_LINKERX32
 #define MUSL_DYNAMIC_LINKERX32 "/lib/ld-musl-x32.so.1"
+#undef STANDARD_STARTFILE_PREFIX_1
+#undef STANDARD_STARTFILE_PREFIX_2
+#define STANDARD_STARTFILE_PREFIX_1 "/lib/"
+#define STANDARD_STARTFILE_PREFIX_2 ""

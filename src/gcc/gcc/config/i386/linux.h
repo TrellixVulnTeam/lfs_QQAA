@@ -24,3 +24,7 @@ along with GCC; see the file COPYING3.  If not see
 
 #undef MUSL_DYNAMIC_LINKER
 #define MUSL_DYNAMIC_LINKER "/lib/ld-musl-i386.so.1"
+#undef STANDARD_STARTFILE_PREFIX_1
+#undef STANDARD_STARTFILE_PREFIX_2
+#define STANDARD_STARTFILE_PREFIX_1 "/lib/"
+#define STANDARD_STARTFILE_PREFIX_2 ""
