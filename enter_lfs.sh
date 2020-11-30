@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-test -z "$*" && set "bin/env.ch5.sh"
+test -z "$*" && set "etc/env.ch5.sh"
 source "$1"
 shift
 cd "$LFS"
