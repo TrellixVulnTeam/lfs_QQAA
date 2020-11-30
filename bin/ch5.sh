@@ -17,10 +17,10 @@ flex_preconfig() {
 };
 flex_config() {
   HELP2MAN=/tools/bin/true \
-  ./configure --prefix=/usr --docdir=/usr/share/doc/flex-2.6.4
+  ./configure --prefix=/tools --docdir=/tools/share/doc/flex-2.6.4
 };
 flex_postinstall() {
-  ln -sv flex /usr/bin/lex
+  ln -sv flex /tools/bin/lex
 };
 add_pkg flex
 # 5.4. Binutils-2.32 - Pass 1
