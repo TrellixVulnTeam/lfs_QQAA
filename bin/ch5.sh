@@ -14,6 +14,11 @@ good || exit 1
 
 source bin/env.ch5.sh
 source bin/func.sh
+
+unset -f unpack_only
+unpack_only() { true; }
+export -f unpack_only
+
 generic_config() {
   ./configure --prefix=$LFS_DST
 };
